@@ -1,0 +1,31 @@
+# .github/workflows/trigger.yml
+
+name: Trigger Subdirectory Workflow
+
+on:
+  push:
+    paths:
+      - '02 Starting Project/**'  # Trigger only on changes within this folder
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
+
+      - name: Authenticate with GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth login --with-token <<< "$GH_TOKEN"
+
+      - name: Trigger Subdirectory Workflow
+        run: |
+          cd '02 Starting Project'
+          gh workflow run test.yml --repo $GITHUB_REPOSITORY
